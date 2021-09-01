@@ -9,11 +9,11 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', msg => {
-  if (msg.content === 'bItcH') {
-    msg.channel.send('no WoNk');
+  if (msg.content === 'hello') {
+    msg.channel.send('yoyo');
   }
-  if (msg.content === 'p') {
-    msg.channel.send('!p');
+  if (msg.content === 'ping') {
+    msg.channel.send('pong');
   }
 });
 
