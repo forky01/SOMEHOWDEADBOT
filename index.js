@@ -1,20 +1,20 @@
 require('dotenv').config();
-const { Client, Intents } = require('discord.js');
+const { Console } = require('console');
+const { Client, Intents, Message } = require('discord.js');
+const fs = require('fs');
 const TOKEN = process.env.DISCORD_TOKEN;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
-client.once('ready', () => {
-  console.info(`Logged in as ${client.user.tag}!`);
-});
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-client.on('messageCreate', msg => {
-  if (msg.content === 'hello') {
-    msg.channel.send('yoyo');
-  }
-  if (msg.content === 'ping') {
-    msg.channel.send('pong');
-  }
-});
+for (const file of eventFiles) {
+	const event = require(`./events/${file}`);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args));
+	}
+}
 
 client.login(TOKEN);
