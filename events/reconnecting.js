@@ -1,7 +1,5 @@
-module.exports = {
-	name: 'reconnecting',
-	once: true,
-	execute() {
-		console.log(`Reconnecting!`);
-	},
+export const name = 'reconnecting';
+export const once = true;
+export function execute() {
+	console.log(`Reconnecting!`);
 };

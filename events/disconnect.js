@@ -1,7 +1,5 @@
-module.exports = {
-	name: 'disconnect',
-	once: true,
-	execute() {
+export const name = 'disconnect';
+export const once = true;
+export function execute() {
 		console.log(`Diconnecting!`);
-	},
 };
