@@ -1,8 +1,8 @@
 import http from 'http';
-import request from 'request';
+import axios from 'axios';
+import dotenv from 'dotenv'
 
 var stateClient, accessTokenInfo;
-import dotenv from 'dotenv'
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -26,20 +26,7 @@ export async function login   () {
   console.log(url);
 }
 
-
-
-var generateRandomString = function (length) {
-  var text = '';
-  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (var i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-};
-
-
-export async function authCallback(content, resServer) {
+export async function authCallback(content) {
 	var code, stateServer, err;
   //request access/refresh token
   var contentParams = content.split("&");
@@ -47,7 +34,7 @@ export async function authCallback(content, resServer) {
     if (contentParams[i].startsWith("code")){
         code = contentParams[i].split("=")[1];
     }
-    else if (contentParams[i].startsWith("status")){
+    else if (contentParams[i].startsWith("state")){
       stateServer = contentParams[i].split("=")[1];
     }
     else if (contentParams[i].startsWith("error")){
@@ -60,34 +47,56 @@ export async function authCallback(content, resServer) {
       console.log("DENIED");     
     }
     if (code) {
-      resServer.end();
-      accessTokenInfo = await getAccessToken(code);
-      await console.log(accessTokenInfo);
+      var accessTokenResponse = await getAccessToken(code);
+      if(accessTokenResponse != null) {
+        accessTokenInfo = accessTokenResponse.data
+        console.log("toekn: " + accessTokenInfo.access_token);
+      }
     }
   } 
 }
 
-export async function getAccessToken(code) {
+var generateRandomString = function (length) {
+  var text = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (var i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+};
+
+async function getAccessToken(code) {
   var authOptions = {
     url: 'https://accounts.spotify.com/api/token',
     method: 'POST',
-    form: {
+    params: {
       code: code,
-      redirect_uri: "http://localhost:5000/auth/callback",
+      redirect_uri: 'http://localhost:5000/auth/callback',
       grant_type: 'authorization_code'
     },
     headers: {
       'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
       'Content-Type' : 'application/x-www-form-urlencoded'
     },
-    json: true
+    responseType: 'json'
   };
 
-  request.post (authOptions, (err, res, body) => {
-    console.log(body);
-    if (!err && res.statusCode === 200) {
-      console.log("yes");
-      return body;
+  let response = await axios(authOptions).catch(function (error) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.log(error.response.data);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message);
     }
   });
+
+  return response;
 }

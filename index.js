@@ -29,11 +29,12 @@ import {authCallback} from './token_spotify.js';
 
 const server = http.createServer();
 
-server.on('request', (req, resServer) => {
+server.on('request', (req, res) => {
+	res.end();
 	var [path, content] = req.url.split("?");
 	//listen to callback from initial login
 	if (path === '/auth/callback') {
-		authCallback(content, resServer);
+		authCallback(content);
 	}
 });
 
