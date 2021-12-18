@@ -16,8 +16,6 @@ spotify
 npm install express http-proxy-middleware 
 ```
 
-note: request is deprecated
-
 ## commands
 
 When updating commands run: `node deploy-commands.js`
