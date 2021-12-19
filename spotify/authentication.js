@@ -1,15 +1,16 @@
-import http from 'http';
 import axios from 'axios';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
+
+import {errorHandling} from '../errorHandling.js';
 
 var stateClient, accessTokenInfo;
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
-export async function login   () {
+export function generateAuthenticationURL   () {
   //request authorisation
-  var scope = "streaming user-read-email user-read-private user-read-playback-state"
+  var scope = " user-modify-playback-state user-read-playback-state"
   stateClient = generateRandomString(16);
 
   var auth_query_parameters = new URLSearchParams({
@@ -21,8 +22,7 @@ export async function login   () {
   })
 
   var url = 'https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString();
-  
-  //needs to be turned into a button since discord can't redirect to the user authorisation page
+
   console.log(url);
 }
 
@@ -50,7 +50,7 @@ export async function authCallback(content) {
       var accessTokenResponse = await getAccessToken(code);
       if(accessTokenResponse != null) {
         accessTokenInfo = accessTokenResponse.data
-        console.log("toekn: " + accessTokenInfo.access_token);
+        console.log(accessTokenInfo);
       }
     }
   } 
@@ -82,21 +82,8 @@ async function getAccessToken(code) {
     responseType: 'json'
   };
 
-  let response = await axios(authOptions).catch(function (error) {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.log(error.response.data);
-      console.log(error.response.status);
-      console.log(error.response.headers);
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.log(error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.log('Error', error.message);
-    }
-  });
+  let response = await axios(authOptions).catch((error) => errorHandling(error, "getAccessToken"));
 
   return response;
 }
+

@@ -25,7 +25,7 @@ client.login(TOKEN);
 //spotify
 //need server to listen to callbacks
 import http from 'http';
-import {authCallback} from './token_spotify.js';
+import {authCallback} from './spotify/authentication.js';
 
 const server = http.createServer();
 

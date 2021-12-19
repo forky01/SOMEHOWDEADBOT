@@ -1,5 +1,8 @@
+import { MessageActionRow, MessageButton } from 'discord.js';
+import {generateAuthenticationURL} from '../spotify/authentication.js';
+import {play} from '../spotify/functionality.js';
+
 const prefix = "~";
-import {login} from '../token_spotify.js';
 
 export const name = 'messageCreate';
 export const once = false;
@@ -28,9 +31,8 @@ export async function execute(msg) {
     else if (msg.content === `${prefix}q`) {
       msg.channel.send('queue');
     }
-    else if (msg.content === `${prefix}l`) {
-      // const getToken = require('../token_spotify.js');
-      await login();
+    else if (msg.content === `${prefix}tp`) {
+      await play(token, msg.channel); 
     }
 };
 

@@ -1,6 +1,4 @@
-// const { MessageActionRow, MessageButton } = require('discord.js');
 import { MessageActionRow, MessageButton } from 'discord.js';
-
 
 export const name = 'interactionCreate';
 export const once = false;

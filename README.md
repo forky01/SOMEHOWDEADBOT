@@ -10,11 +10,9 @@ npm install
 
 _NOTE:_ discord.js-v13 requires >= Node 16.6
 
-spotify
+## Bot Usage
 
-```sh
-npm install express http-proxy-middleware 
-```
+spotify must be open on a device to play music
 
 ## commands
 
