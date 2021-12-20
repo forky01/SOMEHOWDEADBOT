@@ -29,10 +29,12 @@ async function chooseDevice(token, channel) {
       }
     }
     else{
-      //choose the active device -> then laptop -> then phone -> then random
+      // Attempts to select most logical device for playback -> the active device -> then laptop -> then phone -> then a randomly selected default
       var selected = [];
       var restrictedCount = 0;
+      var defaultID;
       for (var i = 0; i < devices.length; i++) {
+        // if device is restricted skip and check other devices
         if (devices[i].is_restricted) {
           restrictedCount ++;
         }
@@ -45,18 +47,29 @@ async function chooseDevice(token, channel) {
         else if (devices[i].type == "Smartphone") {
           selected[1] = devices[i].id;
         }
-      }
-      if (restrictedCount != devices.length) {
-        for (var i = 0; i < selected.length; i++) {
-          if (selected[i]) {
-            return selected[i];
-          }
+        else if (!defaultID) {
+          // the first non restricted device becomes the defaultID
+          defaultID = devices[i].id;
         }
-        return devices[0];
       }
-      else {
+      //makes sure all devices aren't restricted before return
+      if (restrictedCount == devices.length) {
         channel.send("Use a different device");
         return null;
+      }
+      //otherwise attempt to return the prefered devices
+      else {
+        if (selected.length > 0) {
+          // returns device in preference order
+          // i.e. if there's an computer ID return it otherwise return phone ID
+          for (var i = 0; i < selected.length; i++) {
+            if (selected[i]) {
+              return selected[i];
+            }
+          }
+        }
+        //otherwise return the default
+        return  defaultID;
       }
     }
   }
