@@ -24,7 +24,7 @@ export function generateAuthenticationURL() {
 
   var url = 'https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString();
 
-  console.log(url);
+  return url;
 }
 
 export async function authCallback(content) {

@@ -31,6 +31,16 @@ export async function execute(msg) {
     else if (msg.content === `${prefix}q`) {
       msg.channel.send('queue');
     }
+    else if (msg.content === `${prefix}l`) {
+      var url = generateAuthenticationURL();
+      const row = new MessageActionRow().addComponents(
+				new MessageButton()
+					.setLabel('authenticate')
+					.setStyle('LINK')
+          .setURL(url)
+			);
+      msg.channel.send({ content: msg.author.username, components: [row] });
+    }
     else if (msg.content === `${prefix}tp`) {
       await play(token, msg.channel); 
     }
