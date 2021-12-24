@@ -14,7 +14,7 @@ export async function startPlayback(tokenInfo, deviceId) {
     headers: {
       'Authorization': `${tokenInfo.token_type} ${tokenInfo.access_token}`,
       "Accept": "application/json",
-       "Content-Type": " application/json"
+      "Content-Type": " application/json"
     }
   };
   let response = await axios(options).catch((error) => errorHandling(error, "play"));

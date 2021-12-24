@@ -1,4 +1,4 @@
-export function errorHandling (error, funcName) {
+export function errorHandling(error, funcName) {
   console.log(`${funcName} failed`)
   if (error.response) {
     // The request was made and the server responded with a status code

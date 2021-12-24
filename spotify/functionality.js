@@ -1,9 +1,9 @@
-import {getDevices} from './getInfo.js';
-import {startPlayback} from './modifyPlayback.js';
+import { getDevices } from './getInfo.js';
+import { startPlayback } from './modifyPlayback.js';
 
 export async function play(token, channel) {
   var deviceId = await chooseDevice(token, channel);
-  if (deviceId != null){
+  if (deviceId != null) {
     var isPlaying = await startPlayback(token, deviceId);
     if (isPlaying) {
       channel.send("eNjOy");
@@ -15,20 +15,20 @@ async function chooseDevice(token, channel) {
   var devicesResponse = await getDevices(token);
   if (devicesResponse != null) {
     var devices = devicesResponse.data.devices;
-    if(devices.length == 0) {
+    if (devices.length == 0) {
       channel.send("Open spotify");
       return null;
     }
     else if (devices.length == 1) {
-      if(devices[0].is_restricted) {
+      if (devices[0].is_restricted) {
         channel.send("Use a different device");
         return null;
       }
-      else{
+      else {
         return devices[0].id;
       }
     }
-    else{
+    else {
       // Attempts to select most logical device for playback -> the active device -> then laptop -> then phone -> then a randomly selected default
       var selected = [];
       var restrictedCount = 0;
@@ -36,7 +36,7 @@ async function chooseDevice(token, channel) {
       for (var i = 0; i < devices.length; i++) {
         // if device is restricted skip and check other devices
         if (devices[i].is_restricted) {
-          restrictedCount ++;
+          restrictedCount++;
         }
         else if (devices[i].is_active) {
           return devices[i].id;
@@ -69,7 +69,7 @@ async function chooseDevice(token, channel) {
           }
         }
         //otherwise return the default
-        return  defaultID;
+        return defaultID;
       }
     }
   }

@@ -12,7 +12,7 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
-	let {name, once, execute} = await import(`./events/${file}`);
+	let { name, once, execute } = await import(`./events/${file}`);
 	if (once) {
 		client.once(name, (...args) => execute(...args));
 	} else {
@@ -25,7 +25,7 @@ client.login(TOKEN);
 //spotify
 //need server to listen to callbacks
 import http from 'http';
-import {authCallback} from './spotify/authentication.js';
+import { authCallback } from './spotify/authentication.js';
 
 const server = http.createServer();
 

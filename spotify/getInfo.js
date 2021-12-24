@@ -8,7 +8,7 @@ export async function getDevices(tokenInfo) {
     headers: {
       'Authorization': `${tokenInfo.token_type} ${tokenInfo.access_token}`,
       "Accept": "application/json",
-       "Content-Type": " application/json"
+      "Content-Type": " application/json"
     }
   };
   let response = await axios(options).catch((error) => errorHandling(error, "getDevices"));
