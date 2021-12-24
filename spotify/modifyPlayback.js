@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { errorHandling } from '../errorHandling.js';
 
-export async function startPlayback(tokenInfo, deviceId) {
+export async function startPlayback(accessToken, tokenType, deviceId) {
   var options = {
     url: 'https://api.spotify.com/v1/me/player/play',
     method: 'put',
@@ -12,7 +12,7 @@ export async function startPlayback(tokenInfo, deviceId) {
     //   uris: ["spotify:track:3cfOd4CMv2snFaKAnMdnvK"]
     // },
     headers: {
-      'Authorization': `${tokenInfo.token_type} ${tokenInfo.access_token}`,
+      'Authorization': `${tokenType} ${accessToken}`,
       "Accept": "application/json",
       "Content-Type": " application/json"
     }

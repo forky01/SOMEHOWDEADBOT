@@ -1,18 +1,23 @@
 import { getDevices } from './getInfo.js';
 import { startPlayback } from './modifyPlayback.js';
+import { getUser } from '../userInfo.js';
 
-export async function play(token, channel) {
-  var deviceId = await chooseDevice(token, channel);
+export async function play(user, channel) {
+  var user = getUser(user);
+  var accessToken = user.get("accessToken");
+  var tokenType = user.get("tokenType");
+
+  var deviceId = await chooseDevice(accessToken, tokenType, channel);
   if (deviceId != null) {
-    var isPlaying = await startPlayback(token, deviceId);
+    var isPlaying = await startPlayback(accessToken, tokenType, deviceId);
     if (isPlaying) {
       channel.send("eNjOy");
     }
   }
 }
 
-async function chooseDevice(token, channel) {
-  var devicesResponse = await getDevices(token);
+async function chooseDevice(accessToken, tokenType, channel) {
+  var devicesResponse = await getDevices(accessToken, tokenType);
   if (devicesResponse != null) {
     var devices = devicesResponse.data.devices;
     if (devices.length == 0) {

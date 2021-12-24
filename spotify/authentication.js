@@ -1,25 +1,41 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { MessageActionRow, MessageButton } from 'discord.js';
 
 import { errorHandling } from '../errorHandling.js';
+import { addUser, getUserByKeyPair, setUser, removeKeyFromUser } from '../userInfo.js';
 
-var stateClient, accessTokenInfo;
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
-export function generateAuthenticationURL() {
+export function generateAuthButton(user) {
+  var state = generateRandomString(16);
+  var url = generateAuthenticationURL(state);
+
+  //store state for future identification of the user sending the request
+  addUser(user, "state", state);
+
+  const row = new MessageActionRow().addComponents(
+    new MessageButton()
+      .setLabel('authenticate')
+      .setStyle('LINK')
+      .setURL(url)
+  );
+  return row;
+}
+
+function generateAuthenticationURL(state) {
   //request authorisation
   var scope = "user-modify-playback-state user-read-playback-state";
-  stateClient = generateRandomString(16);
 
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: spotify_client_id,
     scope: scope,
-    redirect_uri: 'http://localhost:5000/auth/callback',
-    state: stateClient
-  })
+    redirect_uri: 'http://localhost:3000/auth/callback',
+    state: state
+  });
 
   var url = 'https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString();
 
@@ -42,18 +58,36 @@ export async function authCallback(content) {
     }
   }
 
-  if (stateClient === stateServer) {
+  var user = getUserByKeyPair("state", stateServer);
+
+  if (user != null) {
     if (err) {
       console.log("DENIED");
     }
     if (code) {
       var accessTokenResponse = await getAccessToken(code);
       if (accessTokenResponse != null) {
-        accessTokenInfo = accessTokenResponse.data
-        console.log(accessTokenInfo);
+        var accessTokenInfo = accessTokenResponse.data;
+        assignTokenToUser(user, accessTokenInfo);
       }
     }
   }
+}
+
+function assignTokenToUser(user, accessTokenInfo) {
+  setUser(user, "accessToken", accessTokenInfo["access_token"]);
+  setUser(user, "tokenType", accessTokenInfo["token_type"]);
+  setUser(user, "scope", accessTokenInfo["scope"]);
+  setUser(user, "expiresIn", accessTokenInfo["expires_in"]);
+  setUser(user, "refreshToken", accessTokenInfo["refresh_token"]);
+
+  var today = new Date();
+  var expiryInHours = accessTokenInfo["expires_in"] / 60 / 60;
+  var expiryTime = today.getHours() + expiryInHours + ":" + today.getMinutes() + ":" + today.getSeconds();
+  setUser(user, "expiresAt", expiryTime);
+
+  //remove the state
+  removeKeyFromUser(user, "state");
 }
 
 var generateRandomString = function (length) {
@@ -72,7 +106,7 @@ async function getAccessToken(code) {
     method: 'POST',
     params: {
       code: code,
-      redirect_uri: 'http://localhost:5000/auth/callback',
+      redirect_uri: 'http://localhost:3000/auth/callback',
       grant_type: 'authorization_code'
     },
     headers: {
