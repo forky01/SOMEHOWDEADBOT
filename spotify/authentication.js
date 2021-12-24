@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ApplicationCommandPermissionType } from 'discord-api-types';
 import dotenv from 'dotenv';
 
 import { errorHandling } from '../errorHandling.js';
