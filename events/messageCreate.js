@@ -1,5 +1,4 @@
-import { MessageActionRow, MessageButton } from 'discord.js';
-import { generateAuthenticationURL } from '../spotify/authentication.js';
+import { generateAuthButton } from '../spotify/authentication.js';
 import { play } from '../spotify/functionality.js';
 
 const prefix = "~";
