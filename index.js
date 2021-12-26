@@ -28,12 +28,14 @@ const server = http.createServer();
 server.on('request', (req, res) => {
 	res.end();
 	var [path, content] = req.url.split("?");
+
+	var lightsailPath = "/somehowdeadbot"; //hosting on aws lightsail changes the path
 	//listen to callback from initial login
-	if (path === '/auth/callback') {
+	if (path === `${lightsailPath}/auth/callback`) {
 		authCallback(content);
 	}
 });
 
-server.listen(3000, () => {
-	console.log("server start at port 3000");
+server.listen(5000, () => {
+	console.log("server start at port 5000");
 });

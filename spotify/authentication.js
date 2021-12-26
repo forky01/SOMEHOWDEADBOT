@@ -8,6 +8,7 @@ import { addUser, getUserByKeyPair, setUser, removeKeyFromUser } from '../userIn
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+var redirectUri = 'http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback'
 
 export function generateAuthButton(user) {
   var state = generateRandomString(16);
@@ -33,7 +34,7 @@ function generateAuthenticationURL(state) {
     response_type: "code",
     client_id: spotify_client_id,
     scope: scope,
-    redirect_uri: 'http://localhost:3000/auth/callback',
+    redirect_uri: redirectUri,
     state: state
   });
 
@@ -65,10 +66,12 @@ export async function authCallback(content) {
       console.log("DENIED");
     }
     if (code) {
+      console.log(`Got code for ${user}`);
       var accessTokenResponse = await getAccessToken(code);
       if (accessTokenResponse != null) {
         var accessTokenInfo = accessTokenResponse.data;
         assignTokenToUser(user, accessTokenInfo);
+        console.log(`Got token for ${user}`);
       }
     }
   }
@@ -106,7 +109,7 @@ async function getAccessToken(code) {
     method: 'POST',
     params: {
       code: code,
-      redirect_uri: 'http://localhost:3000/auth/callback',
+      redirect_uri: redirectUri,
       grant_type: 'authorization_code'
     },
     headers: {
