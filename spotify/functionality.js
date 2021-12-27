@@ -85,7 +85,7 @@ async function chooseDevice(tokenAuth, channel) {
           defaultID = devices[i].id;
         }
       }
-      //makes sure all devices aren"t restricted before return
+      //makes sure all devices aren't restricted before return
       if (restrictedCount == devices.length) {
         channel.send("Use a different device");
         return null;
@@ -94,7 +94,7 @@ async function chooseDevice(tokenAuth, channel) {
       else {
         if (selected.length > 0) {
           // returns device in preference order
-          // i.e. if there"s an computer ID return it otherwise return phone ID
+          // i.e. if there's an computer ID return it otherwise return phone ID
           for (var i = 0; i < selected.length; i++) {
             if (selected[i]) {
               return selected[i];

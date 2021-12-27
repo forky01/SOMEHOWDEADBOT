@@ -6,8 +6,8 @@ const prefix = "~";
 export const name = "messageCreate";
 export const once = false;
 export async function execute(msg) {
-  if (msg.author.bot) return; //don"t do anything if its from the bot
-  if (!msg.content.startsWith(prefix)) return; // don"t bother checking the rest
+  if (msg.author.bot) return; //don't do anything if its from the bot
+  if (!msg.content.startsWith(prefix)) return; // don't bother checking the rest
 
   var username = msg.author.username;
   var channel = msg.channel;
