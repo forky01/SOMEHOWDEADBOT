@@ -1,8 +1,15 @@
 {
   "type": "module",
   "dependencies": {
+    "axios": "0.24.0",
     "discord.js": "13.3.1",
-    "dotenv": "10.0.0",
-    "axios": "0.24.0"
+    "dotenv": "10.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.5.0",
+    "gitmoji-cli": "^4.7.0"
+  },
+  "scripts": {
+    "lint": "eslint --ext .js --ignore-path .gitignore ."
   }
 }
