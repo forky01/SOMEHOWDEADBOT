@@ -1,15 +1,15 @@
-import axios from 'axios';
-import { errorHandling } from '../errorHandling.js';
+import axios from "axios";
+import { errorHandling } from "../errorHandling.js";
 
 export async function resumePlayback(tokenAuth, deviceId) {
   var options = {
-    url: 'https://api.spotify.com/v1/me/player/play',
-    method: 'put',
+    url: "https://api.spotify.com/v1/me/player/play",
+    method: "put",
     params: {
       device_id: deviceId
     },
     headers: {
-      'Authorization': tokenAuth,
+      "Authorization": tokenAuth,
       "Accept": "application/json",
       "Content-Type": " application/json"
     }
@@ -23,8 +23,8 @@ export async function resumePlayback(tokenAuth, deviceId) {
 
 export async function startTrackPlayback(tokenAuth, deviceId, trackUri) {
   var options = {
-    url: 'https://api.spotify.com/v1/me/player/play',
-    method: 'put',
+    url: "https://api.spotify.com/v1/me/player/play",
+    method: "put",
     params: {
       device_id: deviceId
     },
@@ -32,7 +32,7 @@ export async function startTrackPlayback(tokenAuth, deviceId, trackUri) {
       uris: [trackUri]
     },
     headers: {
-      'Authorization': tokenAuth,
+      "Authorization": tokenAuth,
       "Accept": "application/json",
       "Content-Type": " application/json"
     }
@@ -46,8 +46,8 @@ export async function startTrackPlayback(tokenAuth, deviceId, trackUri) {
 
 export async function startPlaylistPlayback(tokenAuth, deviceId, playlistUri) {
   var options = {
-    url: 'https://api.spotify.com/v1/me/player/play',
-    method: 'put',
+    url: "https://api.spotify.com/v1/me/player/play",
+    method: "put",
     params: {
       device_id: deviceId
     },
@@ -55,7 +55,7 @@ export async function startPlaylistPlayback(tokenAuth, deviceId, playlistUri) {
       context_uri: playlistUri
     },
     headers: {
-      'Authorization': tokenAuth,
+      "Authorization": tokenAuth,
       "Accept": "application/json",
       "Content-Type": " application/json"
     }
@@ -69,14 +69,14 @@ export async function startPlaylistPlayback(tokenAuth, deviceId, playlistUri) {
 
 export async function toggleShuffle(tokenAuth, deviceId, shuffle) {
   var options = {
-    url: 'https://api.spotify.com/v1/me/player/shuffle',
-    method: 'put',
+    url: "https://api.spotify.com/v1/me/player/shuffle",
+    method: "put",
     params: {
       state: shuffle,
       device_id: deviceId
     },
     headers: {
-      'Authorization': tokenAuth,
+      "Authorization": tokenAuth,
       "Accept": "application/json",
       "Content-Type": " application/json"
     }

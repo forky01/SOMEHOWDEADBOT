@@ -1,14 +1,14 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
-import { MessageActionRow, MessageButton } from 'discord.js';
+import axios from "axios";
+import dotenv from "dotenv";
+import { MessageActionRow, MessageButton } from "discord.js";
 
-import { errorHandling } from '../errorHandling.js';
-import { addUser, getUserByKeyPair, setUser, removeKeyFromUser } from '../userInfo.js';
+import { errorHandling } from "../errorHandling.js";
+import { addUser, getUserByKeyPair, setUser, removeKeyFromUser } from "../userInfo.js";
 
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-var redirectUri = 'http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback'
+var redirectUri = "http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback";
 
 export function generateAuthButton(user) {
   var state = generateRandomString(16);
@@ -19,8 +19,8 @@ export function generateAuthButton(user) {
 
   const row = new MessageActionRow().addComponents(
     new MessageButton()
-      .setLabel('authenticate')
-      .setStyle('LINK')
+      .setLabel("authenticate")
+      .setStyle("LINK")
       .setURL(url)
   );
   return row;
@@ -38,7 +38,7 @@ function generateAuthenticationURL(state) {
     state: state
   });
 
-  var url = 'https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString();
+  var url = "https://accounts.spotify.com/authorize/?" + auth_query_parameters.toString();
 
   return url;
 }
@@ -86,7 +86,7 @@ function assignTokenToUser(user, accessTokenInfo) {
 
   var today = new Date();
   var expiryInHours = accessTokenInfo["expires_in"] / 60 / 60;
-  var expiryTime = today.getHours() + expiryInHours + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var expiryTime = `${today.getHours()+ expiryInHours}:${today.getMinutes()}:${today.getSeconds()}`;
   setUser(user, "expiresAt", expiryTime);
 
   //remove the state
@@ -94,8 +94,8 @@ function assignTokenToUser(user, accessTokenInfo) {
 }
 
 var generateRandomString = function (length) {
-  var text = '';
-  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   for (var i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -105,18 +105,18 @@ var generateRandomString = function (length) {
 
 async function getAccessToken(code) {
   var authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    method: 'POST',
+    url: "https://accounts.spotify.com/api/token",
+    method: "POST",
     params: {
       code: code,
       redirect_uri: redirectUri,
-      grant_type: 'authorization_code'
+      grant_type: "authorization_code"
     },
     headers: {
-      'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
-      'Content-Type': 'application/x-www-form-urlencoded'
+      "Authorization": "Basic " + (Buffer.from(spotify_client_id + ":" + spotify_client_secret).toString("base64")),
+      "Content-Type": "application/x-www-form-urlencoded"
     },
-    responseType: 'json'
+    responseType: "json"
   };
 
   let response = await axios(authOptions).catch((error) => errorHandling(error, "getAccessToken"));

@@ -1,12 +1,12 @@
-import axios from 'axios';
-import { errorHandling } from '../errorHandling.js';
+import axios from "axios";
+import { errorHandling } from "../errorHandling.js";
 
 export async function getDevices(tokenAuth) {
   var options = {
-    url: 'https://api.spotify.com/v1/me/player/devices',
-    method: 'get',
+    url: "https://api.spotify.com/v1/me/player/devices",
+    method: "get",
     headers: {
-      'Authorization': tokenAuth,
+      "Authorization": tokenAuth,
       "Accept": "application/json",
       "Content-Type": " application/json"
     }

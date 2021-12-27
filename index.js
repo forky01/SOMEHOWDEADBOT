@@ -1,11 +1,11 @@
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
 dotenv.config();
-import { Client, Intents, Message } from 'discord.js';
-import fs from 'fs';
+import { Client, Intents} from "discord.js";
+import fs from "fs";
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
 
 for (const file of eventFiles) {
 	let { name, once, execute } = await import(`./events/${file}`);
@@ -20,12 +20,12 @@ client.login(TOKEN);
 
 //spotify
 //need server to listen to callbacks
-import http from 'http';
-import { authCallback } from './spotify/authentication.js';
+import http from "http";
+import { authCallback } from "./spotify/authentication.js";
 
 const server = http.createServer();
 
-server.on('request', (req, res) => {
+server.on("request", (req, res) => {
 	res.end();
 	var [path, content] = req.url.split("?");
 

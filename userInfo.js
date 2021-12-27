@@ -33,7 +33,7 @@ export function setUser(discordName, key, value) {
 }
 
 export function removeKeyFromUser(discordName, key) {
-  var user = users.get(discordName)
+  var user = users.get(discordName);
   if (user.has(key)) {
     user.delete(key);
   }

@@ -1,5 +1,5 @@
-export const name = 'disconnect';
+export const name = "disconnect";
 export const once = true;
 export function execute() {
-	console.log(`Disconnecting!`);
-};
+  console.log("Disconnecting!");
+}

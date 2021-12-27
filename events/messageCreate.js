@@ -1,13 +1,13 @@
-import { generateAuthButton } from '../spotify/authentication.js';
-import { resume, play } from '../spotify/functionality.js';
+import { generateAuthButton } from "../spotify/authentication.js";
+import { resume, play } from "../spotify/functionality.js";
 
 const prefix = "~";
 
-export const name = 'messageCreate';
+export const name = "messageCreate";
 export const once = false;
 export async function execute(msg) {
-  if (msg.author.bot) return; //don't do anything if its from the bot
-  if (!msg.content.startsWith(prefix)) return; // don't bother checking the rest
+  if (msg.author.bot) return; //don"t do anything if its from the bot
+  if (!msg.content.startsWith(prefix)) return; // don"t bother checking the rest
 
   var username = msg.author.username;
   var channel = msg.channel;
@@ -25,16 +25,16 @@ export async function execute(msg) {
     }
   }
   else if (msg.content === `${prefix}s`) {
-    channel.send('skip');
+    channel.send("skip");
   }
   else if (msg.content === `${prefix}pause`) {
-    channel.send('pause');
+    channel.send("pause");
   }
   else if (msg.content === `${prefix}clear`) {
-    channel.send('clear');
+    channel.send("clear");
   }
   else if (msg.content === `${prefix}q`) {
-    channel.send('queue');
+    channel.send("queue");
   }
   else if (msg.content === `${prefix}l`) {
     var row = generateAuthButton(msg.author.username);
@@ -43,6 +43,6 @@ export async function execute(msg) {
   else if (msg.content === `${prefix}tp`) {
     await resume(username, channel);
   }
-};
+}
 
 

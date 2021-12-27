@@ -1,10 +1,9 @@
-import { getDevices } from './getInfo.js';
-import { resumePlayback, startTrackPlayback, startPlaylistPlayback, toggleShuffle } from './modifyPlayback.js';
-import { getUser } from '../userInfo.js';
+import { getDevices } from "./getInfo.js";
+import { resumePlayback, startTrackPlayback, startPlaylistPlayback, toggleShuffle } from "./modifyPlayback.js";
+import { getUser } from "../userInfo.js";
 
-export async function play(user, channel, audioType, audioId) {
-  // var tokenAuth = getUserToken(user);
-var tokenAuth = "Bearer BQD1iZxgnKOZipdxazOsrEtQDtafv3U-Rh8tT5QKHuDpAoKkZOnFfWL3iwUioq4YKoriUc0kMi1rj8RHQ2rkHFXdjsPC40nx_0sX5i0nelgji2snSvxijvHQ8vac_OtQgwabjD5dLctEsnwlN6C9dAVHzzMaFUy7RiXI6ITdjUI";
+export async function play(username, channel, audioType, audioId) {
+  var tokenAuth = getUserToken(username);
 
   var deviceId = await chooseDevice(tokenAuth, channel);
   if (deviceId != null) {
@@ -26,8 +25,8 @@ var tokenAuth = "Bearer BQD1iZxgnKOZipdxazOsrEtQDtafv3U-Rh8tT5QKHuDpAoKkZOnFfWL3
   }
 }
 
-export async function resume(user, channel) {
-  var tokenAuth = getUserToken(user);
+export async function resume(username, channel) {
+  var tokenAuth = getUserToken(username);
 
   var deviceId = await chooseDevice(tokenAuth, channel);
   if (deviceId != null) {
@@ -38,11 +37,11 @@ export async function resume(user, channel) {
   }
 }
 
-function getUserToken(user) {
-  var user = getUser(user);
+function getUserToken(username) {
+  var user = getUser(username);
   var accessToken = user.get("accessToken");
   var tokenType = user.get("tokenType");
-  return `${tokenType} ${accessToken}`
+  return `${tokenType} ${accessToken}`;
 }
 
 async function chooseDevice(tokenAuth, channel) {
@@ -86,7 +85,7 @@ async function chooseDevice(tokenAuth, channel) {
           defaultID = devices[i].id;
         }
       }
-      //makes sure all devices aren't restricted before return
+      //makes sure all devices aren"t restricted before return
       if (restrictedCount == devices.length) {
         channel.send("Use a different device");
         return null;
@@ -95,7 +94,7 @@ async function chooseDevice(tokenAuth, channel) {
       else {
         if (selected.length > 0) {
           // returns device in preference order
-          // i.e. if there's an computer ID return it otherwise return phone ID
+          // i.e. if there"s an computer ID return it otherwise return phone ID
           for (var i = 0; i < selected.length; i++) {
             if (selected[i]) {
               return selected[i];
