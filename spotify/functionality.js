@@ -1,23 +1,52 @@
 import { getDevices } from './getInfo.js';
-import { startPlayback } from './modifyPlayback.js';
+import { resumePlayback, startTrackPlayback, startPlaylistPlayback, toggleShuffle } from './modifyPlayback.js';
 import { getUser } from '../userInfo.js';
 
-export async function play(user, channel) {
-  var user = getUser(user);
-  var accessToken = user.get("accessToken");
-  var tokenType = user.get("tokenType");
+export async function play(user, channel, audioType, audioId) {
+  // var tokenAuth = getUserToken(user);
+var tokenAuth = "Bearer BQD1iZxgnKOZipdxazOsrEtQDtafv3U-Rh8tT5QKHuDpAoKkZOnFfWL3iwUioq4YKoriUc0kMi1rj8RHQ2rkHFXdjsPC40nx_0sX5i0nelgji2snSvxijvHQ8vac_OtQgwabjD5dLctEsnwlN6C9dAVHzzMaFUy7RiXI6ITdjUI";
 
-  var deviceId = await chooseDevice(accessToken, tokenType, channel);
+  var deviceId = await chooseDevice(tokenAuth, channel);
   if (deviceId != null) {
-    var isPlaying = await startPlayback(accessToken, tokenType, deviceId);
+    var isPlaying;
+
+    if (audioType == "playlist") {
+      var playlistUri = `spotify:playlist:${audioId}`;
+      await toggleShuffle(tokenAuth, deviceId, true);
+      isPlaying = await startPlaylistPlayback(tokenAuth, deviceId, playlistUri);
+    }
+    else if (audioType == "track") {
+      var trackUri = `spotify:track:${audioId}`;
+      isPlaying = await startTrackPlayback(tokenAuth, deviceId, trackUri);
+    }
+
     if (isPlaying) {
       channel.send("eNjOy");
     }
   }
 }
 
-async function chooseDevice(accessToken, tokenType, channel) {
-  var devicesResponse = await getDevices(accessToken, tokenType);
+export async function resume(user, channel) {
+  var tokenAuth = getUserToken(user);
+
+  var deviceId = await chooseDevice(tokenAuth, channel);
+  if (deviceId != null) {
+    var isPlaying = await resumePlayback(tokenAuth, deviceId);
+    if (isPlaying) {
+      channel.send("eNjOy");
+    }
+  }
+}
+
+function getUserToken(user) {
+  var user = getUser(user);
+  var accessToken = user.get("accessToken");
+  var tokenType = user.get("tokenType");
+  return `${tokenType} ${accessToken}`
+}
+
+async function chooseDevice(tokenAuth, channel) {
+  var devicesResponse = await getDevices(tokenAuth);
   if (devicesResponse != null) {
     var devices = devicesResponse.data.devices;
     if (devices.length == 0) {

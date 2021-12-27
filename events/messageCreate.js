@@ -1,5 +1,5 @@
 import { generateAuthButton } from '../spotify/authentication.js';
-import { play } from '../spotify/functionality.js';
+import { resume, play } from '../spotify/functionality.js';
 
 const prefix = "~";
 
@@ -13,9 +13,12 @@ export async function execute(msg) {
   var channel = msg.channel;
 
   if (msg.content.startsWith(`${prefix}p`)) {
-    var commandArgs = msg.content.match(new RegExp(`${prefix}p (?<url>.+)`));
+    // regex: ?<group-name>
+    var commandArgs = msg.content.match(new RegExp(`${prefix}p https://open.spotify.com/(?<type>[a-z]+)/(?<id>[a-zA-Z0-9]+)?.+`));
     if (commandArgs) {
-      channel.send(`play url: ${commandArgs.groups.url}`);
+      var audioType = commandArgs.groups.type;
+      var audioId = commandArgs.groups.id;
+      await play(username, channel, audioType, audioId);
     }
     else {
       channel.send(`${prefix}p spotify-playlist`);
@@ -38,7 +41,7 @@ export async function execute(msg) {
     channel.send({ content: username, components: [row] });
   }
   else if (msg.content === `${prefix}tp`) {
-    await play(username, channel);
+    await resume(username, channel);
   }
 };
 
