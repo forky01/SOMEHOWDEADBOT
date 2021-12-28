@@ -8,7 +8,7 @@ export function getUser(discordName) {
   return users.get(discordName);
 }
 
-export function getUserByKeyPair(key, value) {
+export function getUsernameByKeyPair(key, value) {
   var username;
   users.forEach((v, name) => {
     if (v.has(key)) {
@@ -19,10 +19,17 @@ export function getUserByKeyPair(key, value) {
   });
   return username;
 }
+export function getUserValue(discordName, key) {
+  if (users.has(discordName) && users.get(discordName).has(key)){
+    return users.get(discordName).get(key);
+  }
+  return null;
+}
 
-export function addUser(discordName, key, value) {
+export function addUser(discordName, param1, param2) {
   var userMap = new Map();
-  userMap.set(key, value);
+  userMap.set(param1[0], param1[1]);
+  userMap.set(param2[0], param2[1]);
   users.set(discordName, userMap);
 }
 

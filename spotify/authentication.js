@@ -1,29 +1,23 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import { MessageActionRow, MessageButton } from "discord.js";
+import open from "open";
 
 import { errorHandling } from "../errorHandling.js";
-import { addUser, getUserByKeyPair, setUser, removeKeyFromUser } from "../userInfo.js";
+import { addUser, getUsernameByKeyPair, setUser, removeKeyFromUser, getUserValue } from "../userInfo.js";
 
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 var redirectUri = "http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback";
 
-export function generateAuthButton(user) {
+export function authenticate(username, msg) {
   var state = generateRandomString(16);
   var url = generateAuthenticationURL(state);
 
   //store state for future identification of the user sending the request
-  addUser(user, "state", state);
+  addUser(username, ["state", state], ["msg", msg]);
 
-  const row = new MessageActionRow().addComponents(
-    new MessageButton()
-      .setLabel("authenticate")
-      .setStyle("LINK")
-      .setURL(url)
-  );
-  return row;
+  open(url);
 }
 
 function generateAuthenticationURL(state) {
@@ -59,38 +53,43 @@ export async function authCallback(content) {
     }
   }
 
-  var user = getUserByKeyPair("state", stateServer);
+  var username = getUsernameByKeyPair("state", stateServer);
+  var msg = getUserValue(username, "msg");
 
-  if (user != null) {
+  if (username != null && msg != null) {
     if (err) {
-      console.log("DENIED");
+      console.log(`${username} denied`);
+      msg.react("👎");
     }
     if (code) {
-      console.log(`Got code for ${user}`);
+      console.log(`Got code for ${username}`);
       var accessTokenResponse = await getAccessToken(code);
       if (accessTokenResponse != null) {
         var accessTokenInfo = accessTokenResponse.data;
-        assignTokenToUser(user, accessTokenInfo);
-        console.log(`Got token for ${user}`);
+        assignTokenToUser(username, accessTokenInfo);
+        console.log(`Got token for ${username}`);
+        open("spotify:open", {background:true}); //only opens in background for macOS
+        msg.react("👌");
       }
     }
   }
+  removeKeyFromUser(username, "msg");
 }
 
-function assignTokenToUser(user, accessTokenInfo) {
-  setUser(user, "accessToken", accessTokenInfo["access_token"]);
-  setUser(user, "tokenType", accessTokenInfo["token_type"]);
-  setUser(user, "scope", accessTokenInfo["scope"]);
-  setUser(user, "expiresIn", accessTokenInfo["expires_in"]);
-  setUser(user, "refreshToken", accessTokenInfo["refresh_token"]);
+function assignTokenToUser(username, accessTokenInfo) {
+  setUser(username, "accessToken", accessTokenInfo["access_token"]);
+  setUser(username, "tokenType", accessTokenInfo["token_type"]);
+  setUser(username, "scope", accessTokenInfo["scope"]);
+  setUser(username, "expiresIn", accessTokenInfo["expires_in"]);
+  setUser(username, "refreshToken", accessTokenInfo["refresh_token"]);
 
   var today = new Date();
   var expiryInHours = accessTokenInfo["expires_in"] / 60 / 60;
   var expiryTime = `${today.getHours()+ expiryInHours}:${today.getMinutes()}:${today.getSeconds()}`;
-  setUser(user, "expiresAt", expiryTime);
+  setUser(username, "expiresAt", expiryTime);
 
   //remove the state
-  removeKeyFromUser(user, "state");
+  removeKeyFromUser(username, "state");
 }
 
 var generateRandomString = function (length) {

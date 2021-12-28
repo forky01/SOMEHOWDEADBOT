@@ -1,4 +1,4 @@
-import { generateAuthButton } from "../spotify/authentication.js";
+import { authenticate } from "../spotify/authentication.js";
 import { resume, play } from "../spotify/functionality.js";
 
 const prefix = "~";
@@ -37,8 +37,7 @@ export async function execute(msg) {
     channel.send("queue");
   }
   else if (msg.content === `${prefix}l`) {
-    var row = generateAuthButton(msg.author.username);
-    channel.send({ content: username, components: [row] });
+    await authenticate(username, msg);
   }
   else if (msg.content === `${prefix}tp`) {
     await resume(username, channel);

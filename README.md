@@ -24,10 +24,6 @@ To add to server:
 
 - Edit settings: add the redirect uri for the auth process (e.g. <http://localhost:5000/auth/callback>)
 
-## Bot Usage
-
-spotify must be open on a device to play music
-
 ## commands
 
 When updating commands run: `node deploy-commands.js`
