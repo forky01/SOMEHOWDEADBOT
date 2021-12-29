@@ -1,6 +1,6 @@
 # BOT
 
-## Installation
+## 🔧 Installation
 
 Clone this repo at `git clone https://github.com/forky01/SOMEHOWDEADBOT.git`
 
@@ -10,26 +10,54 @@ npm install
 
 _NOTE:_ discord.js-v13 requires >= Node 16.6
 
-### Bot setup
+### 📝 .env file
 
-<https://discord.com/developers/applications> -> create application and get DISCORD_TOKEN
+Create a `.env` file with the following variables:
 
-To add to server:
+- DISCORD_TOKEN
 
-- OAuth2 tab -> URL generator: then select the following scopes `bot`, `application.commands` and any relevant bot permissions.
+- SPOTIFY_CLIENT_ID
 
-### Spotify Setup
+- SPOTIFY_CLIENT_SECRET
 
-<https://developer.spotify.com/dashboard> -> create app and get SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
+How to get each value is explained in Bot and Spotify Setup
 
-- Edit settings: add the redirect uri for the auth process (e.g. <http://localhost:5000/auth/callback>)
+### 🤖 Bot setup
 
-## commands
+Create an _application_ at <https://discord.com/developers/applications>.
+
+Grab DISCORD_TOKEN value:
+
+- Under _settings_ -> _Bot_: copy the `TOKEN` and store as `DISCORD_TOKEN` in your _.env_ file
+
+To add the bot to a server:
+
+- Under _settings_ -> _OAuth2 tab_ -> _URL generator_: select the following scopes `bot`, `application.commands` and any relevant bot permissions.
+
+### 🎸 Spotify Setup
+
+Create an _app_ at <https://developer.spotify.com/dashboard>.
+
+Settings to Modify:
+
+- Go to _Edit settings_: add the redirect uri for the auth process (e.g. <http://localhost:5000/auth/callback>)
+
+- _Note_: If `App Status` is in `development mode`: Up to 25 Spotify users can install and use your app. These users must be explicitly added under the section "Users and Access" before they can authenticate with your app.
+
+Grab SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET values:
+
+- Under the app name and description, copy the `Client ID` and `Client Secret` and store as `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in your _.env_ file
+
+---
+
+## 📣 commands
 
 When updating commands run: `node deploy-commands.js`
 
 Global commands are cached for one hour. New global commands will fan out slowly across all guilds and will only be guaranteed to be updated after an hour. Guild commands update instantly. As such, we recommend you use guild-based commands during development and publish them to global commands when they're ready for public use.
 
-## Auth process
+---
+
+## 🔐 Spotify auth process
 
 <https://developer.spotify.com/documentation/general/guides/authorization/code-flow/>
