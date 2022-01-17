@@ -122,4 +122,3 @@ async function getAccessToken(code) {
 
   return response;
 }
-

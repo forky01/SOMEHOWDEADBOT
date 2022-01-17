@@ -10,7 +10,8 @@ export async function execute(msg) {
   if (!msg.content.startsWith(prefix)) return; // don't bother checking the rest
 
   var username = msg.author.username;
-  var channel = msg.channel;
+  var textChannel = msg.channel;
+  var member = msg.member;
 
   if (msg.content.startsWith(`${prefix}p`)) {
     // regex: ?<group-name>
@@ -18,30 +19,28 @@ export async function execute(msg) {
     if (commandArgs) {
       var audioType = commandArgs.groups.type;
       var audioId = commandArgs.groups.id;
-      await play(username, channel, audioType, audioId);
+      await play(username, textChannel, msg, member, audioType, audioId);
     }
     else {
-      channel.send(`${prefix}p spotify-playlist`);
+      textChannel.send(`${prefix}p spotify-playlist`);
     }
   }
   else if (msg.content === `${prefix}s`) {
-    channel.send("skip");
+    textChannel.send("skip");
   }
   else if (msg.content === `${prefix}pause`) {
-    channel.send("pause");
+    textChannel.send("pause");
   }
   else if (msg.content === `${prefix}clear`) {
-    channel.send("clear");
+    textChannel.send("clear");
   }
   else if (msg.content === `${prefix}q`) {
-    channel.send("queue");
+    textChannel.send("queue");
   }
   else if (msg.content === `${prefix}l`) {
     await authenticate(username, msg);
   }
   else if (msg.content === `${prefix}tp`) {
-    await resume(username, channel);
+    await resume(username, textChannel);
   }
 }
-
-
