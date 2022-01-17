@@ -61,3 +61,30 @@ Global commands are cached for one hour. New global commands will fan out slowly
 ## 🔐 Spotify auth process
 
 <https://developer.spotify.com/documentation/general/guides/authorization/code-flow/>
+
+## UserInfo/currentListeners data structures
+
+```
+user = {
+  discordName: {
+    state: (temp) used in auth process to identify the user when callback occurs
+    msg: (temp) stores the msg which triggered the auth process
+
+    accessToken
+    tokenType
+    scope
+    expiresIn
+    refreshToken
+    expiresAt
+    deviceId
+  }
+}
+```
+
+```
+currentListeners = {
+  voiceChannelId: {
+    discordName: [tokenAuth, deviceId]
+  }
+}
+```
