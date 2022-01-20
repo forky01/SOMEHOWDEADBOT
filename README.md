@@ -26,6 +26,8 @@ How to get each value is explained in Bot and Spotify Setup
 
 Create an _application_ at <https://discord.com/developers/applications>.
 
+Then add a bot -> in the side nav bar under _settings_ -> _Bot_: The click the `Add Bot` Button
+
 Grab DISCORD_TOKEN value:
 
 - Under _settings_ -> _Bot_: copy the `TOKEN` and store as `DISCORD_TOKEN` in your _.env_ file
