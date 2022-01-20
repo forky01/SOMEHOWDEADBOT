@@ -1,7 +1,8 @@
-import { getDevices } from "./getInfo.js";
-import { resumePlayback, startTrackPlayback, startPlaylistPlayback, toggleShuffle } from "./modifyPlayback.js";
+import { getDevices, getPlaylistSongs, getPlaylistSongsNextUrl } from "./getInfo.js";
+import { resumePlayback, startTrackPlayback, startShuffledPlaylistPlayback } from "./modifyPlayback.js";
 import { getUser, getUserValue, setUser } from "../userInfo.js";
 import { addVoiceChannel, addListener, getCurrentListeners } from '../currentListeners.js';
+import arrayShuffle from "array-shuffle";
 
 export async function play(username, textChannel, msg, member, audioType, audioId) {
   // check initiator has auth before proceeding
@@ -9,15 +10,18 @@ export async function play(username, textChannel, msg, member, audioType, audioI
   if (initiatorTokenAuth != null) {
     var listeners = await getListeners(username, member, textChannel, initiatorTokenAuth);
     if (listeners != null) {
-      listeners.forEach(async(v) => {
+      listeners.forEach(async (v) => {
+        var tokenAuth = v[0];
+        var deviceId = v[1];
         if (audioType == "playlist") {
-          var playlistUri = `spotify:playlist:${audioId}`;
-          await toggleShuffle(v[0], v[1], true);
-          await startPlaylistPlayback(v[0], v[1], playlistUri);
+          //default is shuffling the songs in the playlist
+          var shuffledSongs = await shufflePlaylistSongs(initiatorTokenAuth, audioId);
+          var shuffleSongUris = getPlaylistSongUris(shuffledSongs);
+          await startShuffledPlaylistPlayback(tokenAuth, deviceId, shuffleSongUris);
         }
         else if (audioType == "track") {
           var trackUri = `spotify:track:${audioId}`;
-          await startTrackPlayback(v[0], v[1], trackUri);
+          await startTrackPlayback(tokenAuth, deviceId, trackUri);
         }
       });
     }
@@ -27,7 +31,7 @@ export async function play(username, textChannel, msg, member, audioType, audioI
   }
 }
 
-export async function getListeners(initiatorUsername, member, textChannel, initiatorTokenAuth) {
+async function getListeners(initiatorUsername, member, textChannel, initiatorTokenAuth) {
   if (checkInitiator(member.voice, textChannel)) {
     var voiceChannelId = member.voice.channelId;
     var deviceId = await getDeviceId(initiatorUsername, initiatorTokenAuth, textChannel);
@@ -35,7 +39,7 @@ export async function getListeners(initiatorUsername, member, textChannel, initi
     if (deviceId != null) {
       addVoiceChannel(voiceChannelId, initiatorUsername, [initiatorTokenAuth, deviceId]);
       var voiceChannel = member.voice.channel;
-      voiceChannel.members.forEach(async(v) => {
+      voiceChannel.members.forEach(async (v) => {
         if (checkVoiceChannelMembers(v, initiatorUsername)) {
           var memberUsername = v.user.username;
           var tokenAuth = getUserTokenAuth(memberUsername);
@@ -49,13 +53,13 @@ export async function getListeners(initiatorUsername, member, textChannel, initi
   return null;
 }
 
-export function checkVoiceChannelMembers(v, initiatorName) {
+function checkVoiceChannelMembers(v, initiatorName) {
   if (!v.user.username == initiatorName) {
     //later check for autojoin
     var isDeaf = v.voice.deaf;
     var isMute = v.voice.mute;
     // check user isn't deaf/mute (otherwise probs MIA)
-    if(!isDeaf && !isMute) {
+    if (!isDeaf && !isMute) {
       return true;
     }
   }
@@ -67,25 +71,54 @@ function checkInitiator(initiatorVoiceState, textChannel) {
   if (isInVoiceChannel) {
     var voiceChannelSize = initiatorVoiceState.channel.members.size;
     // make sure there's more than 1 person in the call for group listening
-    if(voiceChannelSize > 1) {
+    if (voiceChannelSize > 1) {
       var isDeaf = initiatorVoiceState.deaf;
       var isMute = initiatorVoiceState.mute;
       // Initiator shouldn't be deafened or muted
-      if(!isDeaf && !isMute) {
+      if (!isDeaf && !isMute) {
         return true;
       }
-      else{
+      else {
         textChannel.send("You're deafened/muted");
         return false;
       }
     }
-    else{
+    else {
       textChannel.send("No one else is here...");
       return false;
     }
   }
   textChannel.send("Please join VC");
   return false;
+}
+
+async function shufflePlaylistSongs(tokenAuth, playlistId) {
+  var songs = [];
+
+  var response = await getPlaylistSongs(tokenAuth, playlistId);
+  songs.push(response.data.items);
+  var nextUrl = response.data.next;
+
+  while (nextUrl != null) {
+    response = await getPlaylistSongsNextUrl(tokenAuth, nextUrl);
+    songs.push(response.data.items);
+    nextUrl = response.data.next;
+  }
+
+  songs = songs.flat();
+
+  var shuffledSongs = arrayShuffle(songs);
+
+  return shuffledSongs;
+
+}
+
+function getPlaylistSongUris(shuffledSongs) {
+  var songUris = [];
+  shuffledSongs.forEach((item) => {
+    songUris.push(item.track.uri);
+  });
+  return songUris;
 }
 
 export async function resume(username, textChannel) {

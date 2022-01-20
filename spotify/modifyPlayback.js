@@ -67,6 +67,29 @@ export async function startPlaylistPlayback(tokenAuth, deviceId, playlistUri) {
   return null;
 }
 
+export async function startShuffledPlaylistPlayback(tokenAuth, deviceId, playlistSongUris) {
+  var options = {
+    url: "https://api.spotify.com/v1/me/player/play",
+    method: "put",
+    params: {
+      device_id: deviceId
+    },
+    data: {
+      uris: playlistSongUris
+    },
+    headers: {
+      "Authorization": tokenAuth,
+      "Accept": "application/json",
+      "Content-Type": " application/json"
+    }
+  };
+  let response = await axios(options).catch((error) => errorHandling(error, "playShuffledPlaylist"));
+  if (response != null) {
+    return true;
+  }
+  return null;
+}
+
 export async function toggleShuffle(tokenAuth, deviceId, shuffle) {
   var options = {
     url: "https://api.spotify.com/v1/me/player/shuffle",
