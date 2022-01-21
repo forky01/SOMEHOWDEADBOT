@@ -1,7 +1,7 @@
 import { getDevices, getPlaylistSongs, getPlaylistSongsNextUrl } from "./getInfo.js";
-import { resumePlayback, startTrackPlayback, startShuffledPlaylistPlayback } from "./modifyPlayback.js";
+import { resumePlayback, startTrackPlayback, toggleShuffle } from "./modifyPlayback.js";
 import { getUser, getUserValue, setUser } from "../userInfo.js";
-import { addVoiceChannel, addListener, getCurrentListeners } from '../currentListeners.js';
+import { addVoiceChannel, addListener, getCurrentListeners } from "../currentListeners.js";
 import arrayShuffle from "array-shuffle";
 
 export async function play(username, textChannel, msg, member, audioType, audioId) {
@@ -10,20 +10,31 @@ export async function play(username, textChannel, msg, member, audioType, audioI
   if (initiatorTokenAuth != null) {
     var listeners = await getListeners(username, member, textChannel, initiatorTokenAuth);
     if (listeners != null) {
-      listeners.forEach(async (v) => {
-        var tokenAuth = v[0];
-        var deviceId = v[1];
-        if (audioType == "playlist") {
-          //default is shuffling the songs in the playlist
-          var shuffledSongs = await shufflePlaylistSongs(initiatorTokenAuth, audioId);
-          var shuffleSongUris = getPlaylistSongUris(shuffledSongs);
-          await startShuffledPlaylistPlayback(tokenAuth, deviceId, shuffleSongUris);
+      var guildName = msg.guild.name;
+      var voiceChannelName = member.voice.channel.name;
+      console.log(`${listeners.size} listener(s) on '${voiceChannelName}' VC '${guildName}' guild`);
+      //if there are listeners and the supplied url is a playlist then shuffle songs
+      var trackUri;
+      if (audioType == "playlist") {
+        //default is shuffling the songs in the playlist
+        var shuffledSongs = await shufflePlaylistSongs(initiatorTokenAuth, audioId);
+        if (shuffledSongs != null) {
+          trackUri = getPlaylistSongUris(shuffledSongs);
         }
-        else if (audioType == "track") {
-          var trackUri = `spotify:track:${audioId}`;
-          await startTrackPlayback(tokenAuth, deviceId, trackUri);
+      }
+      else if (audioType == "track") {
+        trackUri = `spotify:track:${audioId}`;
+      }
+      if (trackUri != null) {
+        for (var v of listeners.values()) {
+          var tokenAuth = v[0];
+          var deviceId = v[1];
+          //toggleShuffle and startTrackPlayback are not awaited to ensure playback is as in sync as possible
+          toggleShuffle(tokenAuth, deviceId, false);
+          startTrackPlayback(tokenAuth, deviceId, trackUri);
         }
-      });
+        msg.react("👌");
+      }
     }
   }
   else {
@@ -35,18 +46,21 @@ async function getListeners(initiatorUsername, member, textChannel, initiatorTok
   if (checkInitiator(member.voice, textChannel)) {
     var voiceChannelId = member.voice.channelId;
     var deviceId = await getDeviceId(initiatorUsername, initiatorTokenAuth, textChannel);
-    //make sure initiator has a device to play music
+    // make sure initiator has a device to play music
     if (deviceId != null) {
       addVoiceChannel(voiceChannelId, initiatorUsername, [initiatorTokenAuth, deviceId]);
       var voiceChannel = member.voice.channel;
-      voiceChannel.members.forEach(async (v) => {
+      for (var v of voiceChannel.members.values()) {
         if (checkVoiceChannelMembers(v, initiatorUsername)) {
           var memberUsername = v.user.username;
           var tokenAuth = getUserTokenAuth(memberUsername);
-          var deviceId = await getDeviceId(initiatorUsername, tokenAuth, textChannel);
-          addListener(voiceChannelId, memberUsername, [tokenAuth, deviceId]);
+          if(tokenAuth != null) {
+            deviceId = await getDeviceId(memberUsername, tokenAuth, textChannel);
+            addListener(voiceChannelId, memberUsername, [tokenAuth, deviceId]);
+          }
         }
-      });
+      }
+
       return getCurrentListeners(voiceChannelId);
     }
   }
@@ -54,7 +68,7 @@ async function getListeners(initiatorUsername, member, textChannel, initiatorTok
 }
 
 function checkVoiceChannelMembers(v, initiatorName) {
-  if (!v.user.username == initiatorName) {
+  if (v.user.username != initiatorName) {
     //later check for autojoin
     var isDeaf = v.voice.deaf;
     var isMute = v.voice.mute;
@@ -96,21 +110,28 @@ async function shufflePlaylistSongs(tokenAuth, playlistId) {
   var songs = [];
 
   var response = await getPlaylistSongs(tokenAuth, playlistId);
-  songs.push(response.data.items);
-  var nextUrl = response.data.next;
-
-  while (nextUrl != null) {
-    response = await getPlaylistSongsNextUrl(tokenAuth, nextUrl);
+  if (response != null) {
     songs.push(response.data.items);
-    nextUrl = response.data.next;
+    var nextUrl = response.data.next;
+
+    while (nextUrl != null) {
+      response = await getPlaylistSongsNextUrl(tokenAuth, nextUrl);
+      if (response != null) {
+        songs.push(response.data.items);
+        nextUrl = response.data.next;
+      }
+      else {
+        return null;
+      }
+    }
+
+    songs = songs.flat();
+
+    var shuffledSongs = arrayShuffle(songs);
+
+    return shuffledSongs;
   }
-
-  songs = songs.flat();
-
-  var shuffledSongs = arrayShuffle(songs);
-
-  return shuffledSongs;
-
+  return null;
 }
 
 function getPlaylistSongUris(shuffledSongs) {
@@ -168,6 +189,7 @@ async function getDeviceId(username, tokenAuth, textChannel) {
         return chooseDevice(devices, textChannel);
       }
     }
+    return null;
   }
   else {
     return storedDeviceId;
