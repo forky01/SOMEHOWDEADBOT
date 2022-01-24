@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import open from "open";
+import { MessageActionRow, MessageButton } from "discord.js";
 
 import { errorHandling } from "../errorHandling.js";
 import { addUser, getUsernameByKeyPair, setUser, removeKeyFromUser, getUserValue } from "../userInfo.js";
@@ -10,14 +10,20 @@ var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 var redirectUri = "http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback";
 
-export function authenticate(username, msg) {
+export function generateAuthButton(user, msg) {
   var state = generateRandomString(16);
   var url = generateAuthenticationURL(state);
 
   //store state for future identification of the user sending the request
-  addUser(username, ["state", state], ["msg", msg]);
+  addUser(user, ["state", state], ["msg", msg]);
 
-  open(url);
+  const row = new MessageActionRow().addComponents(
+    new MessageButton()
+      .setLabel("authenticate")
+      .setStyle("LINK")
+      .setURL(url)
+  );
+  return row;
 }
 
 function generateAuthenticationURL(state) {
@@ -68,7 +74,6 @@ export async function authCallback(content) {
         var accessTokenInfo = accessTokenResponse.data;
         assignTokenToUser(username, accessTokenInfo);
         console.log(`Got token for ${username}`);
-        open("spotify:open", {background:true}); //only opens in background for macOS
         msg.react("👌");
       }
     }

@@ -1,5 +1,9 @@
 # BOT
 
+## Usage
+
+:warning: must have spotify open before attempting to play music
+
 ## 🔧 Installation
 
 Clone this repo at `git clone https://github.com/forky01/SOMEHOWDEADBOT.git`

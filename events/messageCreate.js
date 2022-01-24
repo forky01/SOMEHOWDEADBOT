@@ -1,4 +1,4 @@
-import { authenticate } from "../spotify/authentication.js";
+import { generateAuthButton } from "../spotify/authentication.js";
 import { resume, play } from "../spotify/functionality.js";
 
 const prefix = "~";
@@ -37,8 +37,9 @@ export async function execute(msg) {
   else if (msg.content === `${prefix}q`) {
     textChannel.send("queue");
   }
-  else if (msg.content === `${prefix}l`) {
-    await authenticate(username, msg);
+  else if (msg.content === `${prefix}a` || msg.content === `${prefix}auth`) {
+    var row = generateAuthButton(username, msg);
+    textChannel.send({ content: username, components: [row] });
   }
   else if (msg.content === `${prefix}tp`) {
     await resume(username, textChannel);
