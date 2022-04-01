@@ -29,7 +29,8 @@ server.on("request", (req, res) => {
   res.end();
   var [path, content] = req.url.split("?");
 
-  var lightsailPath = "/somehowdeadbot"; //hosting on aws lightsail changes the path
+  // var lightsailPath = "/somehowdeadbot"; //hosting on aws lightsail changes the path
+  var lightsailPath = "";
   //listen to callback from initial login
   if (path === `${lightsailPath}/auth/callback`) {
     authCallback(content);

@@ -3,12 +3,13 @@ import dotenv from "dotenv";
 import { MessageActionRow, MessageButton } from "discord.js";
 
 import { errorHandling } from "../errorHandling.js";
-import { addUser, getUsernameByKeyPair, setUser, removeKeyFromUser, getUserValue } from "../userInfo.js";
+import { addUser, getUsernameByKeyPair, setUser, removeKeyFromUser, getUserValue } from "../data/userInfo.js";
 
 dotenv.config();
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-var redirectUri = "http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback";
+// var redirectUri = "http://somehowdeadbot.a72oabv7crsku.ap-southeast-2.cs.amazonlightsail.com/somehowdeadbot/auth/callback";
+var redirectUri = "http://localhost:5000/auth/callback";
 
 export function generateAuthButton(user, msg) {
   var state = generateRandomString(16);

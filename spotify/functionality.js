@@ -1,14 +1,15 @@
 import { getDevices, getPlaylistSongs, getPlaylistSongsNextUrl } from "./getInfo.js";
 import { resumePlayback, startTrackPlayback, toggleShuffle } from "./modifyPlayback.js";
-import { getUser, getUserValue, setUser } from "../userInfo.js";
-import { addVoiceChannel, addListener, getCurrentListeners } from "../currentListeners.js";
+import { getUser, getUserValue, setUser } from "../data/userInfo.js";
+import { addPlayerVoiceChannel, addPlayerListener, getPlayerListeners, getPlayerQueue, addToPlayerQueue, setPlayerQueue } from "../data/playerInfo.js";
 import arrayShuffle from "array-shuffle";
 
 export async function play(username, textChannel, msg, member, audioType, audioId) {
-  // check initiator has auth before proceeding
+  // check initiator has auth before proceeding and there is no existing queue
   var initiatorTokenAuth = getUserTokenAuth(username);
-  if (initiatorTokenAuth != null) {
-    var listeners = await getListeners(username, member, textChannel, initiatorTokenAuth);
+  var voiceChannelId = member.voice.channelId;
+  if (initiatorTokenAuth != null && !getPlayerQueue(voiceChannelId)) {
+    var listeners = await findListeners(username, member, textChannel, initiatorTokenAuth);
     if (listeners != null) {
       var guildName = msg.guild.name;
       var voiceChannelName = member.voice.channel.name;
@@ -19,6 +20,7 @@ export async function play(username, textChannel, msg, member, audioType, audioI
         //default is shuffling the songs in the playlist
         var shuffledSongs = await shufflePlaylistSongs(initiatorTokenAuth, audioId);
         if (shuffledSongs != null) {
+          setPlayerQueue(voiceChannelId, shuffledSongs);
           trackUri = getPlaylistSongUris(shuffledSongs);
         }
       }
@@ -42,13 +44,13 @@ export async function play(username, textChannel, msg, member, audioType, audioI
   }
 }
 
-async function getListeners(initiatorUsername, member, textChannel, initiatorTokenAuth) {
+async function findListeners(initiatorUsername, member, textChannel, initiatorTokenAuth) {
   if (checkInitiator(member.voice, textChannel)) {
     var voiceChannelId = member.voice.channelId;
     var deviceId = await getDeviceId(initiatorUsername, initiatorTokenAuth, textChannel);
     // make sure initiator has a device to play music
     if (deviceId != null) {
-      addVoiceChannel(voiceChannelId, initiatorUsername, [initiatorTokenAuth, deviceId]);
+      addPlayerVoiceChannel(voiceChannelId, initiatorUsername, [initiatorTokenAuth, deviceId]);
       var voiceChannel = member.voice.channel;
       for (var v of voiceChannel.members.values()) {
         if (checkVoiceChannelMembers(v, initiatorUsername)) {
@@ -56,12 +58,12 @@ async function getListeners(initiatorUsername, member, textChannel, initiatorTok
           var tokenAuth = getUserTokenAuth(memberUsername);
           if(tokenAuth != null) {
             deviceId = await getDeviceId(memberUsername, tokenAuth, textChannel);
-            addListener(voiceChannelId, memberUsername, [tokenAuth, deviceId]);
+            addPlayerListener(voiceChannelId, memberUsername, [tokenAuth, deviceId]);
           }
         }
       }
 
-      return getCurrentListeners(voiceChannelId);
+      return getPlayerListeners(voiceChannelId);
     }
   }
   return null;
@@ -85,7 +87,7 @@ function checkInitiator(initiatorVoiceState, textChannel) {
   if (isInVoiceChannel) {
     var voiceChannelSize = initiatorVoiceState.channel.members.size;
     // make sure there's more than 1 person in the call for group listening
-    if (voiceChannelSize > 1) {
+    if (voiceChannelSize > 0) {
       var isDeaf = initiatorVoiceState.deaf;
       var isMute = initiatorVoiceState.mute;
       // Initiator shouldn't be deafened or muted

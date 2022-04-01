@@ -93,4 +93,25 @@ currentListeners = {
     discordName: [tokenAuth, deviceId]
   }
 }
+
+queue = {
+  voiceChannelId: {
+    {
+      songName
+      artists: []
+      songUri
+    }
+  }
+}
+
+player = {
+  voiceChannelId: {
+    queue: {
+
+    }
+    listeners: {
+
+    }
+  }
+}
 ```

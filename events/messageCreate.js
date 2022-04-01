@@ -13,16 +13,19 @@ export async function execute(msg) {
   var textChannel = msg.channel;
   var member = msg.member;
 
-  if (msg.content.startsWith(`${prefix}p`)) {
+  if (msg.content.startsWith(`${prefix}p`) || msg.content.startsWith(`${prefix}play`)) {
     // regex: ?<group-name>
-    var commandArgs = msg.content.match(new RegExp(`${prefix}p https://open.spotify.com/(?<type>[a-z]+)/(?<id>[a-zA-Z0-9]+)?.+`));
+    var commandArgs = msg.content.match(new RegExp(`^${prefix}(p|play)( )+https://open.spotify.com/(?<type>[a-z]+)/(?<id>[a-zA-Z0-9]+)?.+`));
     if (commandArgs) {
       var audioType = commandArgs.groups.type;
       var audioId = commandArgs.groups.id;
       await play(username, textChannel, msg, member, audioType, audioId);
     }
-    else {
-      textChannel.send(`${prefix}p spotify-playlist`);
+    else if (msg.content.startsWith(`${prefix}p`)) {
+      textChannel.send(`${prefix}p <spotify-playlist>`);
+    }
+    else if (msg.content.startsWith(`${prefix}play`)) {
+      textChannel.send(`${prefix}play <spotify-playlist>`);
     }
   }
   else if (msg.content === `${prefix}s`) {
